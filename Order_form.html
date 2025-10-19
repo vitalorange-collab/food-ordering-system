@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>สั่งอาหารแสนอร่อย! (ผู้สั่ง)</title>
+    <link rel="stylesheet" href="styles.css"> </head>
+<body class="order-body">
+    <div class="card-container">
+        <header>
+            <h1>🍱 สั่งอาหารประจำวัน</h1>
+            <p>กรุณากรอกรายละเอียดให้ครบถ้วนเพื่อความอร่อย!</p>
+        </header>
+
+        <form id="orderForm" class="cute-form">
+            <div class="input-group">
+                <label for="customerName">ชื่อผู้สั่ง:</label>
+                <input type="text" id="customerName" placeholder="เช่น น้องใจดี" required>
+            </div>
+
+            <div class="input-group">
+                <label for="department">แผนก / หน่วยงาน:</label>
+                <input type="text" id="department" placeholder="เช่น บัญชี" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="foodMenu">เมนูอาหาร:</label>
+                <select id="foodMenu" required>
+                    <option value="">-- เลือกเมนูโปรดของคุณ --</option>
+                    </select>
+            </div>
+
+            <div class="input-group">
+                <label for="quantity">จำนวนที่สั่ง (ชุด):</label>
+                <input type="number" id="quantity" min="1" value="1" required>
+            </div>
+
+            <div class="input-group date-info">
+                <label for="deliveryDate">วันที่รับอาหาร:</label>
+                <input type="text" id="deliveryDate" readonly placeholder="จะแสดงอัตโนมัติเมื่อเลือกเมนู" required>
+            </div>
+
+            <button type="submit" class="order-button">🎉 ยืนยันการสั่งอาหาร</button>
+        </form>
+
+        <p class="link-back"><a href="menu_setup.html">เข้าสู่ระบบร้านค้า</a></p>
+    </div>
+
+    <script>
+        let menuData = [];
+
+        // 1. โหลดเมนูและอัปเดตตัวเลือกในฟอร์ม (แก้ไขการจัดการข้อผิดพลาด)
+        window.onload = function() {
+            const savedMenu = localStorage.getItem('foodMenu');
+            const menuSelect = document.getElementById('foodMenu');
+            
+            if (savedMenu) {
+                try {
+                    menuData = JSON.parse(savedMenu);
+                    if (Array.isArray(menuData)) {
+                        menuData.forEach((item, index) => {
+                            // ใช้ค่าที่ร้านค้าป้อนไว้
+                            if(item && item.name && item.date) {
+                                const option = document.createElement('option');
+                                // value เก็บชื่อเมนูและวันที่ เพื่อดึงมาใช้ได้ง่าย
+                                option.value = `${item.name}|${item.date}`; 
+                                option.textContent = `${item.name} (รับ: ${item.date})`;
+                                menuSelect.appendChild(option);
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error("Error loading menu data:", e);
+                    alert("ข้อผิดพลาดในการโหลดเมนู กรุณาให้ร้านค้าตั้งค่าเมนูใหม่");
+                    menuSelect.textContent = "ไม่สามารถโหลดเมนูได้";
+                    menuSelect.disabled = true;
+                }
+            } else {
+                const option = document.createElement('option');
+                option.textContent = "ไม่มีเมนูที่กำหนดไว้ในระบบ 😢";
+                menuSelect.appendChild(option);
+                menuSelect.disabled = true;
+            }
+        };
+        
+        // 2. อัปเดตวันที่รับอาหารเมื่อเลือกเมนู
+        document.getElementById('foodMenu').addEventListener('change', function() {
+            const selectedValue = this.value; // ค่าคือ 'ชื่อเมนู|วันที่'
+            const deliveryDateInput = document.getElementById('deliveryDate');
+            
+            if (selectedValue) {
+                // แยกวันที่ออกมาจาก value (วันที่อยู่หลังเครื่องหมาย '|')
+                const datePart = selectedValue.split('|')[1];
+                deliveryDateInput.value = datePart || '';
+            } else {
+                deliveryDateInput.value = '';
+            }
+        });
+
+        // 3. จัดการการส่งฟอร์มสั่งอาหาร (แก้ไขการบันทึกข้อมูล)
+        document.getElementById('orderForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const selectedValue = document.getElementById('foodMenu').value; // 'ชื่อเมนู|วันที่'
+            const menuName = selectedValue.split('|')[0];
+            const deliveryDate = selectedValue.split('|')[1];
+
+            if (!menuName || !deliveryDate) {
+                 alert('กรุณาเลือกเมนูอาหารที่ถูกต้อง');
+                 return;
+            }
+            
+            const order = {
+                customerName: document.getElementById('customerName').value,
+                department: document.getElementById('department').value,
+                menu: menuName, // บันทึกชื่อเมนูที่แน่นอน
+                quantity: document.getElementById('quantity').value,
+                deliveryDate: deliveryDate, // บันทึกวันที่ที่แน่นอน
+                orderTime: new Date().toLocaleString('th-TH')
+            };
+
+            // โหลดรายการสั่งซื้อเก่าทั้งหมด
+            const ordersJson = localStorage.getItem('allOrders');
+            let allOrders = [];
+            try {
+                allOrders = ordersJson ? JSON.parse(ordersJson) : [];
+            } catch (e) {
+                console.error("Error loading existing orders to append:", e);
+            }
+            
+            // เพิ่มรายการสั่งซื้อใหม่และบันทึกกลับ
+            allOrders.push(order);
+            localStorage.setItem('allOrders', JSON.stringify(allOrders));
+            
+            alert(`✅ สั่งอาหารสำเร็จ!\nเมนู: ${order.menu}\nจำนวน: ${order.quantity} ชุด\nรับวันที่: ${order.deliveryDate}`);
+            
+            // ล้างฟอร์มและรีเซ็ตค่า
+            this.reset(); 
+            document.getElementById('foodMenu').value = '';
+            document.getElementById('deliveryDate').value = '';
+        });
+    </script>
+</body>
+</html>
