@@ -1,0 +1,204 @@
+/* --- Global Styles --- */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+h1, h2, h3 {
+    color: #FF69B4; /* สีชมพูน่ารัก */
+}
+
+/* --- Admin (menu_setup.html) Styles --- */
+.admin-body {
+    background-color: #f4f4f9;
+    padding: 20px;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.menu-item {
+    border: 2px solid #FFC0CB; /* เส้นขอบชมพูอ่อน */
+    background-color: #FFF0F5; /* พื้นหลังสีชมพูอ่อนมาก */
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+}
+
+input[type="text"], input[type="date"] {
+    padding: 10px;
+    margin: 5px 0 10px 0;
+    width: 90%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+button {
+    padding: 12px 20px;
+    background-color: #8A2BE2; /* สีม่วงน่ารัก */
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #9932CC;
+}
+
+/* สรุปรายการสั่งอาหาร */
+.summary-box {
+    background-color: #E0FFFF; /* สีฟ้าอ่อน */
+    border: 2px solid #00CED1;
+}
+
+.menu-summary-block {
+    background-color: #FFFAFA;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.menu-summary-block ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.menu-summary-block li {
+    background-color: #F0F8FF;
+    margin-bottom: 5px;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+/* ส่วนควบคุมการล้างข้อมูล */
+.clear-control {
+    background-color: #FFF8DC; /* สีเหลืองอ่อน / ครีม */
+    border: 2px solid #FFD700; /* ขอบสีทอง */
+    padding: 15px;
+    margin-top: 20px;
+    text-align: left;
+}
+
+.clear-control label {
+    font-weight: bold;
+    color: #4B0082; /* สีม่วงเข้ม */
+    display: block;
+    margin-bottom: 5px;
+}
+
+.clear-control input[type="date"] {
+    width: 250px;
+    margin-right: 15px;
+}
+
+.clear-button {
+    background-color: #DC143C; /* สีแดงเข้ม */
+    padding: 10px 15px;
+}
+
+.clear-button:hover {
+    background-color: #B22222; /* สีแดงเลือดนก */
+}
+
+.clear-note {
+    color: #8B0000;
+    font-size: 0.9em;
+    margin-top: 10px;
+    border-top: 1px dashed #F08080;
+    padding-top: 5px;
+}
+
+/* --- Order Form (order_form.html) Styles --- */
+.order-body {
+    background: linear-gradient(135deg, #FFDAB9 0%, #FFC0CB 100%); /* พื้นหลังสีพีชไล่ชมพู */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.card-container {
+    background-color: #FFFFFF;
+    padding: 40px;
+    border-radius: 20px; /* มุมโค้งมนเยอะๆ */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+}
+
+.cute-form header h1 {
+    color: #FF6347; /* สีส้มน่ารัก */
+    font-size: 2em;
+    margin-bottom: 5px;
+}
+
+.cute-form p {
+    color: #6A5ACD; /* สีม่วงอมฟ้า */
+    margin-bottom: 30px;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.cute-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.cute-form input, .cute-form select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #FFC0CB; /* ขอบสีชมพู */
+    border-radius: 10px; /* มุมโค้งมน */
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+    font-size: 1em;
+}
+
+.cute-form input:focus, .cute-form select:focus {
+    border-color: #FF69B4; /* เน้นสีชมพูเข้มเมื่อคลิก */
+    outline: none;
+}
+
+.order-button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #FF69B4; /* สีชมพูหลัก */
+    font-size: 1.2em;
+}
+
+.order-button:hover {
+    background-color: #FF1493; /* สีชมพูเข้มขึ้นเมื่อโฮเวอร์ */
+    transform: translateY(-2px);
+}
+
+.date-info input {
+    background-color: #EEE8AA; /* สีเหลืองอ่อนสำหรับช่องอ่านอย่างเดียว */
+    color: #8B4513; /* สีน้ำตาลสำหรับวันที่ */
+    font-weight: bold;
+}
+
+.link-back a {
+    color: #008B8B;
+    text-decoration: none;
+    margin-top: 20px;
+    display: block;
+}
