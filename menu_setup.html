@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>สร้างเมนูอาหาร (ร้านค้า)</title>
+    <link rel="stylesheet" href="styles.css"> 
+</head>
+<body class="admin-body">
+    <h1>กำหนดเมนูอาหาร</h1>
+    
+    <div id="menu-form-container" class="container">
+        <div class="menu-item">
+            <h3>เมนูที่ 1</h3>
+            <label for="name1">ชื่อเมนู:</label>
+            <input type="text" id="name1" value="ข้าวผัดกะเพราไก่" required><br>
+            <label for="date1">วันที่ได้รับอาหาร:</label>
+            <input type="date" id="date1" required><br>
+        </div>
+
+        <div class="menu-item">
+            <h3>เมนูที่ 2</h3>
+            <label for="name2">ชื่อเมนู:</label>
+            <input type="text" id="name2" value="ก๋วยเตี๋ยวหมูน้ำตก" required><br>
+            <label for="date2">วันที่ได้รับอาหาร:</label>
+            <input type="date" id="date2" required><br>
+        </div>
+
+        <div class="menu-item">
+            <h3>เมนูที่ 3</h3>
+            <label for="name3">ชื่อเมนู:</label>
+            <input type="text" id="name3" value="ส้มตำไก่ย่าง" required><br>
+            <label for="date3">วันที่ได้รับอาหาร:</label>
+            <input type="date" id="date3" required><br>
+        </div>
+
+        <button onclick="saveMenu()">บันทึกเมนู</button>
+    </div>
+
+    <hr>
+    
+    <h2>สรุปรายการสั่งอาหารทั้งหมด</h2>
+    
+    <div class="container summary-box clear-control">
+        <h3>เครื่องมือจัดการออเดอร์</h3>
+        <label for="clearDate">วันที่ที่ดำเนินการจัดส่งสำเร็จ:</label>
+        <input type="date" id="clearDate" required>
+        <button class="clear-button" onclick="clearOrdersByDate()">ล้างรายการสั่งซื้อ (วันที่ที่เลือก) ✅</button>
+        <p class="clear-note">**ใช้ปุ่มนี้เมื่อจัดส่งอาหารของวันดังกล่าวเรียบร้อยแล้ว รายการสั่งซื้อของวันนี้จะถูกลบออกจากระบบสรุป</p>
+    </div>
+    
+    <div id="order-summary" class="container summary-box">
+        <p>กำลังโหลดข้อมูล...</p>
+    </div>
+
+    <p class="link-back"><a href="order_form.html">ไปที่หน้าสั่งอาหาร</a></p>
+
+    <script>
+        // ฟังก์ชันบันทึกเมนู
+        function saveMenu() {
+            const menu = [];
+            for (let i = 1; i <= 3; i++) {
+                const name = document.getElementById(`name${i}`).value;
+                const date = document.getElementById(`date${i}`).value;
+                menu.push({ name: name, date: date });
+            }
+            localStorage.setItem('foodMenu', JSON.stringify(menu));
+            alert('บันทึกเมนูเรียบร้อยแล้ว!');
+            displayOrderSummary(); 
+        }
+
+        // โหลดเมนูที่บันทึกไว้ และแสดงสรุป
+        window.onload = function() {
+            const savedMenu = localStorage.getItem('foodMenu');
+            if (savedMenu) {
+                try {
+                    const menu = JSON.parse(savedMenu);
+                    for (let i = 0; i < menu.length; i++) {
+                        const nameInput = document.getElementById(`name${i + 1}`);
+                        const dateInput = document.getElementById(`date${i + 1}`);
+                        if (nameInput) nameInput.value = menu[i].name || '';
+                        if (dateInput) dateInput.value = menu[i].date || '';
+                    }
+                } catch (e) {
+                    console.error("Error parsing saved menu from Local Storage:", e);
+                }
+            }
+            displayOrderSummary();
+        };
+
+        // ฟังก์ชัน: แสดงผลสรุปการสั่งอาหาร (ปรับปรุงการดึงค่า)
+        function displayOrderSummary() {
+            const summaryDiv = document.getElementById('order-summary');
+            const ordersJson = localStorage.getItem('allOrders');
+            let orders = [];
+            try {
+                orders = ordersJson ? JSON.parse(ordersJson) : [];
+            } catch (e) {
+                console.error("Error parsing allOrders from Local Storage:", e);
+                summaryDiv.innerHTML = '<p style="color:red;">พบข้อผิดพลาดในการโหลดข้อมูลการสั่งซื้อ กรุณาลองสั่งใหม่ หรือล้าง Local Storage.</p>';
+                return;
+            }
+            
+            if (orders.length === 0) {
+                summaryDiv.innerHTML = '<p>ยังไม่มีรายการสั่งอาหาร</p>';
+                return;
+            }
+
+            // จัดกลุ่มการสั่งซื้อตามเมนูและวันที่รับ
+            const summary = orders.reduce((acc, order) => {
+                // ใช้ค่าที่รับมาจากหน้าสั่งอาหารโดยตรง
+                const menuName = order.menu || 'ไม่ระบุเมนู'; 
+                const deliveryDate = order.deliveryDate || 'ไม่ระบุวันที่';
+                
+                const key = `${menuName} (${deliveryDate})`;
+                
+                if (!acc[key]) {
+                    acc[key] = { 
+                        total: 0, 
+                        customers: [], 
+                        deliveryDate: deliveryDate,
+                        menu: menuName // เก็บชื่อเมนูที่ถูกต้อง
+                    };
+                }
+                const qty = parseInt(order.quantity || 0);
+                acc[key].total += qty;
+                acc[key].customers.push({ 
+                    name: order.customerName || 'ไม่ระบุชื่อ', 
+                    department: order.department || 'ไม่ระบุแผนก', 
+                    quantity: qty 
+                });
+                return acc;
+            }, {});
+
+            // แสดงผลสรุปตามวันที่รับ
+            const groupedByDate = Object.values(summary).reduce((acc, item) => {
+                const date = item.deliveryDate;
+                if (!acc[date]) {
+                    acc[date] = [];
+                }
+                acc[date].push(item);
+                return acc;
+            }, {});
+
+            const sortedDates = Object.keys(groupedByDate).sort();
+
+            let html = '';
+            sortedDates.forEach(date => {
+                html += `<h3>📅 รายการสั่งซื้อสำหรับวันที่: ${date}</h3>`;
+                // เรียงเมนูตามตัวอักษรเพื่อให้ดูง่ายขึ้น
+                groupedByDate[date].sort((a, b) => a.menu.localeCompare(b.menu)); 
+
+                groupedByDate[date].forEach(item => {
+                    html += `<div class="menu-summary-block">
+                                <h4>🍽️ ${item.menu}</h4>
+                                <p><strong>ยอดสั่งรวม:</strong> ${item.total} ชุด</p>
+                                <h5>รายชื่อผู้สั่ง:</h5>
+                                <ul>`;
+                    
+                    item.customers.sort((a, b) => a.name.localeCompare(b.name));
+                    
+                    item.customers.forEach(customer => {
+                        html += `<li>${customer.name} (${customer.department}): ${customer.quantity} ชุด</li>`;
+                    });
+                    
+                    html += `</ul></div>`;
+                });
+            });
+            
+            summaryDiv.innerHTML = html;
+        }
+        
+        // ฟังก์ชัน: ล้างรายการสั่งซื้อตามวันที่
+        function clearOrdersByDate() {
+            const clearDate = document.getElementById('clearDate').value;
+
+            if (!clearDate) {
+                alert('กรุณาเลือกวันที่ที่ต้องการล้างรายการก่อน!');
+                return;
+            }
+
+            if (!confirm(`คุณต้องการล้างรายการสั่งซื้อทั้งหมดที่มีวันรับอาหารคือ ${clearDate} ใช่หรือไม่? การกระทำนี้ไม่สามารถยกเลิกได้!`)) {
+                return;
+            }
+
+            const ordersJson = localStorage.getItem('allOrders');
+            let allOrders = [];
+            try {
+                allOrders = ordersJson ? JSON.parse(ordersJson) : [];
+            } catch (e) {
+                alert('พบข้อผิดพลาดในการโหลดข้อมูลการสั่งซื้อ กรุณาลองใหม่อีกครั้ง');
+                return;
+            }
+            
+            // กรองรายการสั่งซื้อที่ "ไม่ตรง" กับวันที่ที่ต้องการลบออก
+            const ordersToKeep = allOrders.filter(order => order.deliveryDate !== clearDate);
+
+            const deletedCount = allOrders.length - ordersToKeep.length;
+            
+            if (deletedCount === 0) {
+                alert(`ไม่พบรายการสั่งซื้อสำหรับวันที่ ${clearDate} ที่จะลบ.`);
+            } else {
+                localStorage.setItem('allOrders', JSON.stringify(ordersToKeep));
+                alert(`✅ ลบรายการสั่งซื้อจำนวน ${deletedCount} รายการ สำหรับวันที่ ${clearDate} สำเร็จแล้ว!`);
+                displayOrderSummary(); 
+            }
+            
+            document.getElementById('clearDate').value = '';
+        }
+    </script>
+</body>
+</html>
